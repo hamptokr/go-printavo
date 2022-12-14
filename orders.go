@@ -216,3 +216,32 @@ func (s *OrdersService) Search(searchOptions *OrderSearchOptions) (*ListResponse
 
 	return o, resp, err
 }
+
+type OrderAddPaymentParams struct {
+	Book OrderPaymentBook `json:"book"`
+}
+
+type OrderPaymentBook struct {
+	Amount                   int    `json:"amount"`
+	BookCategoryId           int    `json:"book_category_id,omitempty"`
+	FormattedTransactionDate string `json:"formatted_transaction_date"`
+	Name                     string `json:"name,omitempty"`
+	UserGenerated            bool   `json:"user_generated,omitempty"`
+}
+
+func (s *OrdersService) AddPayment(orderId int, orderAddPaymentParams *OrderAddPaymentParams) (*Payment, *http.Response, error) {
+	u := fmt.Sprintf("orders/%d/add_payment", orderId)
+
+	req, err := s.client.NewRequest(http.MethodPost, u, orderAddPaymentParams)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	p := new(Payment)
+	resp, err := s.client.Do(req, &p)
+	if err != nil {
+		return nil, resp, err
+	}
+
+	return p, resp, err
+}
